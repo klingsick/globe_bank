@@ -22,6 +22,12 @@ ob_start(); // output bufering turned on if not already in php.ini
   define("WWW_ROOT", $doc_root);
 
   require_once('functions.php');
+  require_once('database.php');
+  require_once('query_functions.php');
+
+  // function in database.php
+  // create $db connection handle
+  $db = db_connect();
 
 
 ?>
