@@ -1,4 +1,13 @@
-<?php require_once('../../../private/initialize.php'); ?>
+<?php
+require_once('../../../private/initialize.php');
+
+$subject_count = find_subject_count() + 1;
+$subject = [];
+$subject['position'] = $subject_count;
+
+
+
+?>
 
 
 <?php $page_title = 'Create Subject'; ?>
@@ -20,7 +29,15 @@
         <dt>Position</dt>
         <dd>
           <select name="position">
-            <option value="1">1</option>
+            <?php
+              for($i=1; $i <= $subject_count; $i++) {
+                echo "<option value=\"{$i}\"";
+                if($subject['position'] == $i) {
+                  echo " selected";
+                }
+                echo ">{$i}</option>";
+              }
+             ?>
           </select>
         </dd>
       </dl>

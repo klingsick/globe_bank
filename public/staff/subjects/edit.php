@@ -4,27 +4,39 @@ if(!isset($_GET['id'])) {
   redirect_to(url_for('/staff/subjects/index.php'));
 }
 $id = $_GET['id'];
-$menu_name = $_GET['menu_name'];
-$position = '';
-$visible = '';
+//$menu_name = $_GET['menu_name'];
 
-echo $menu_name;
+
+//$position = '';
+//$visible = '';
+
+//echo $menu_name;
 
 if(is_post_request()) {
-// Handle form values sent by new.phpinfo
+  // Handle form values sent by new.phpinfo
 
-$menu_name = isset($_POST['menu_name']) ? $_POST['menu_name'] : '';
-$position = isset($_POST['position']) ? $_POST['position'] : '';
-$visible = isset($_POST['visible']) ? $_POST['visible'] : '';
+  $subject = [];
+  $subject['id'] = $id;
+  $subject['menu_name'] = isset($_POST['menu_name']) ? $_POST['menu_name'] : '';
+  $subject['position'] = isset($_POST['position']) ? $_POST['position'] : '';
+  $subject['visible'] = isset($_POST['visible']) ? $_POST['visible'] : '';
 
-echo "Form parameters<br>";
-echo "Menu name: " . $menu_name . "<br>";
-echo "Position: " . $position . "<br>";
-echo "Visible: " . $visible . "<br>";
+  // update database
+  update_subject($subject);
 
-} //else {
-//  redirect_to(url_for('/staff/subjects/new.php'));
-//}
+  redirect_to(url_for('/staff/subjects/show.php?id=' . $subject['id']));
+
+} else {
+  $subject = find_subject_by_id($id);
+
+  // get count of subjects for 'position'
+  $subject_count = find_subject_count();
+//  $subject_set = find_all_subjects();
+ // $subject_count = mysqli_num_rows($subject_set);
+  //mysqli_free_result($subject_set);
+
+
+}
 
 
 ?>
@@ -42,15 +54,21 @@ echo "Visible: " . $visible . "<br>";
     <form action="<?php echo url_for('/staff/subjects/edit.php?id=' . h(u($id))); ?>" method="post">
       <dl>
         <dt>Menu Name</dt>
-        <dd><input type="text" name="menu_name" value="<?php echo h($menu_name); ?>" /></dd>
+        <dd><input type="text" name="menu_name" value="<?php echo h($subject['menu_name']); ?>" /></dd>
       </dl>
       <dl>
         <dt>Position</dt>
         <dd>
           <select name="position">
-            <option value="1" <?php
-              if($position == "1") { echo " selected"; }
-            ?>>1</option>
+            <?php
+              for($i=1; $i <= $subject_count; $i++) {
+                echo "<option value=\"{$i}\"";
+                if($subject['position'] == $i) {
+                  echo " selected";
+                }
+                echo ">{$i}</option>";
+              }
+             ?>
           </select>
         </dd>
       </dl>
@@ -59,7 +77,7 @@ echo "Visible: " . $visible . "<br>";
         <dd>
           <input type="hidden" name="visible" value="0" />
           <input type="checkbox" name="visible" value="1" <?php
-            if($visible == 1) { echo "checked"; }
+            if($subject['visible'] == 1) { echo "checked"; }
           ?>/>
         </dd>
       </dl>

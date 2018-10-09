@@ -19,15 +19,46 @@
     return $subject;
   }
 
-  function insert_subject($menu_name, $position, $visible) {
+  function find_subject_count() {
+    global $db;
+    $sql = "SELECT COUNT('*') AS total FROM subjects";
+    $result_set = mysqli_query($db, $sql);
+    confirm_result_set($result_set);
+    $result = mysqli_fetch_assoc($result_set);
+    return $result['total'];
+  }
+
+  function update_subject($subject) {
+    global $db;
+
+    $sql = "UPDATE subjects SET ";
+    $sql .= "menu_name='" . $subject['menu_name'] . "', ";
+    $sql .= "position='" . $subject['position'] . "', ";
+    $sql .= "visible='" . $subject['visible'] . "' ";
+    $sql .= "WHERE id='" . $subject['id'] . "' ";
+    $sql .= "LIMIT 1";
+
+    $result = mysqli_query($db, $sql);
+    if($result) {
+//      redirect_to(url_for('/staff/subjects/show.php?id=' . $subject['id']));
+        return true;
+    } else {
+      // update failed
+      echo mysqli_error($db);
+      db_disconnect($db);
+    }
+
+  }
+
+  function insert_subject($subject) {
     global $db;
 
     $sql = "INSERT INTO subjects ";
     $sql .= "(menu_name, position, visible) ";
     $sql .= "VALUES (";
-    $sql .= "'" . $menu_name . "', ";
-    $sql .= "'" . $position . "', ";
-    $sql .= "'" . $visible . "'";
+    $sql .= "'" . $subject['menu_name'] . "', ";
+    $sql .= "'" . $subject['position'] . "', ";
+    $sql .= "'" . $subject['visible'] . "'";
     $sql .= ")";
 
     $result = mysqli_query($db, $sql);
@@ -40,6 +71,21 @@
       db_disconnect($db);
       exit;
     }
+  }
+
+  function delete_subject_row($subject) {
+    global $db;
+    $sql = "DELETE FROM subjects WHERE id ='" . $subject['id'] . "'";
+    $sql .= " LIMIT 1";
+    $result = mysqli_query($db, $sql);
+    if($result) {
+      return true;
+    } else {
+      echo mysqli_error($db);
+      db_disconnect($db);
+      exit;
+    }
+
   }
 
   function find_all_pages() {
