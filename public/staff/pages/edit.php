@@ -3,28 +3,36 @@
 if(!isset($_GET['id'])) {
   redirect_to(url_for('/staff/pages/index.php'));
 }
-$id = $_GET['id'];
-$menu_name = $_GET['menu_name'];
-$position = '';
-$visible = '';
+
+$id = isset($_GET['id']) ? $_GET['id'] : '1';
+
+$subject_set = find_all_subjects();
 
 
 if(is_post_request()) {
-// Handle form values sent by new.phpinfo
 
-$menu_name = isset($_POST['menu_name']) ? $_POST['menu_name'] : '';
-$position = isset($_POST['position']) ? $_POST['position'] : '';
-$visible = isset($_POST['visible']) ? $_POST['visible'] : '';
+$page = [];
+$page['id'] = $id;
+$page['subject_id'] = isset($_POST['subject_id']) ? $_POST['subject_id'] : '';
+$page['menu_name'] = isset($_POST['menu_name']) ? $_POST['menu_name'] : '';
+$page['position'] = isset($_POST['position']) ? $_POST['position'] : '';
+$page['visible'] = isset($_POST['visible']) ? $_POST['visible'] : '';
+$page['content'] = isset($_POST['content']) ? $_POST['content'] : '';
 
-echo "Form parameters<br>";
-echo "Menu name: " . $menu_name . "<br>";
-echo "Position: " . $position . "<br>";
-echo "Visible: " . $visible . "<br>";
+// update Database
+$result = update_page($page);
+echo $result;
+if($result == 1) {
+redirect_to(url_for('/staff/pages/show.php?id=' . $page['id']));
+} else {
+  echo "Update failed";
+  echo mysqli_error($db);
+  db_disconnect($db);
+}
 
-} //else {
-//  redirect_to(url_for('/staff/pages/new.php'));
-//}
-
+} else {
+  $page = find_page_by_id($id);
+}
 
 ?>
 
@@ -41,15 +49,34 @@ echo "Visible: " . $visible . "<br>";
     <form action="<?php echo url_for('/staff/pages/edit.php?id=' . h(u($id))); ?>" method="post">
       <dl>
         <dt>Menu Name</dt>
-        <dd><input type="text" name="menu_name" value="<?php echo h($menu_name); ?>" /></dd>
+        <dd><input type="text" name="menu_name" value="<?php echo h($page['menu_name']); ?>" /></dd>
       </dl>
       <dl>
+        <dl>
+          <dt>Subject</dt>
+          <dd>
+            <select name="subject_id">
+            <?php
+            while($subject = mysqli_fetch_assoc($subject_set)) {
+              echo "<option value=\"{$subject['id']}\"";
+              if($subject['id'] == $page['subject_id']) { echo " selected";}
+              echo ">{$subject['menu_name']}</option>";
+            }
+            ?>
+          </select>
+          </dd>
+        </dl>
         <dt>Position</dt>
         <dd>
           <select name="position">
-            <option value="1" <?php
-              if($position == "1") { echo " selected"; }
-            ?>>1</option>
+            <option value="1" <?php if($page['position'] == "1") { echo " selected"; } ?>>1</option>
+            <option value="1" <?php if($page['position'] == "1") { echo " selected"; } ?>>1</option>
+            <option value="2" <?php if($page['position'] == "2") { echo " selected"; } ?>>2</option>
+            <option value="3" <?php if($page['position'] == "3") { echo " selected"; } ?>>3</option>
+            <option value="4" <?php if($page['position'] == "4") { echo " selected"; } ?>>4</option>
+            <option value="5" <?php if($page['position'] == "5") { echo " selected"; } ?>>5</option>
+            <option value="6" <?php if($page['position'] == "6") { echo " selected"; } ?>>6</option>
+            <option value="7" <?php if($page['position'] == "7") { echo " selected"; } ?>>7</option>
           </select>
         </dd>
       </dl>
@@ -58,8 +85,14 @@ echo "Visible: " . $visible . "<br>";
         <dd>
           <input type="hidden" name="visible" value="0" />
           <input type="checkbox" name="visible" value="1" <?php
-            if($visible == 1) { echo "checked"; }
+            if($page['visible'] == 1) { echo "checked"; }
           ?>/>
+        </dd>
+      </dl>
+      <dl>
+        <dt>Content</dt>
+        <dd>
+          <textarea name="content" rows="20" cols="50"> <?php echo $page['content']; ?></textarea>
         </dd>
       </dl>
       <div id="operations">

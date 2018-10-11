@@ -13,7 +13,6 @@ $id = $_GET['id'];
 //echo $menu_name;
 
 if(is_post_request()) {
-  // Handle form values sent by new.phpinfo
 
   $subject = [];
   $subject['id'] = $id;
@@ -22,9 +21,12 @@ if(is_post_request()) {
   $subject['visible'] = isset($_POST['visible']) ? $_POST['visible'] : '';
 
   // update database
-  update_subject($subject);
-
-  redirect_to(url_for('/staff/subjects/show.php?id=' . $subject['id']));
+  $result = update_subject($subject);
+  if($result == 1) {
+    redirect_to(url_for('/staff/subjects/show.php?id=' . $subject['id']));
+  } else {
+    echo "Update failed";
+  }
 
 } else {
   $subject = find_subject_by_id($id);

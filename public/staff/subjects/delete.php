@@ -14,8 +14,12 @@
     $subject = [];
     $subject['id'] = $id;
 
-    delete_subject_row($subject);
-    redirect_to(url_for('/staff/subjects/index.php'));
+    $result = delete_subject($subject);
+    if($result == 1) {
+      redirect_to(url_for('/staff/subjects/index.php'));
+    } else {
+      echo "Delete failed";
+    }
 
   } else {
     $subject = find_subject_by_id($id);
